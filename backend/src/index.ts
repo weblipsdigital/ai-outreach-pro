@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/api', rateLimiter(60000, 500));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: any, res: any) => {
   res.json({
     status: 'healthy',
     name: 'AI Outreach Pro API',

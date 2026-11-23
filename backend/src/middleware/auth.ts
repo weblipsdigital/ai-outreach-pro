@@ -10,9 +10,9 @@ export interface AuthenticatedUser {
   role: string;
 }
 
-export interface AuthenticatedRequest extends Request {
+export type AuthenticatedRequest = Request & {
   user?: AuthenticatedUser;
-}
+};
 
 export async function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
