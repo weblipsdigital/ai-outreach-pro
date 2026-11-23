@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.4.1",
@@ -27,6 +27,9 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
+    "prisma": "^6.4.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {
@@ -39,10 +42,7 @@
     "@types/node": "^22.13.4",
     "@types/node-cron": "^3.0.11",
     "@types/supertest": "^6.0.2",
-    "prisma": "^6.4.1",
     "supertest": "^7.0.0",
-    "tsx": "^4.19.3",
-    "typescript": "^5.7.3",
     "vitest": "^3.0.5"
   }
 }
