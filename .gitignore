@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment Variables & Secrets (CRITICAL: never commit real secrets)
+.env
+*.env
+!.env.example
+backend/.env
+
+# Build outputs
+dist/
+build/
+*/dist/
+
+# SQLite Database & Prisma generated files
+*.db
+*.db-journal
+*.db-wal
+backend/dev.db
+backend/dev.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
