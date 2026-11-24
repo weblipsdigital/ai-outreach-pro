@@ -69,44 +69,38 @@ app.use('/api', apiRoutes);
 // Centralized error handling
 app.use(errorHandler);
 
-// Ensure default admin user exists on startup
+// Ensure default admin users exist on startup
 export async function ensureDefaultAdmin() {
   try {
-    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@aioutreachpro.local').toLowerCase();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@Outreach2026!';
-    const passwordHash = await bcrypt.hash(adminPassword, 10);
+    const defaultPassword = 'Admin@Outreach2026!';
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
 
-    // Primary Admin User
-    await prisma.user.upsert({
-      where: { email: adminEmail },
-      update: { passwordHash },
-      create: {
-        email: adminEmail,
-        name: 'System Administrator',
-        passwordHash,
-        role: 'ADMIN',
-      },
-    });
+    const emails = Array.from(
+      new Set([
+        'admin@aioutreachpro.local',
+        'suraj.mchakghat@gmail.com',
+        'support@weblipsdigital.in',
+        process.env.ADMIN_EMAIL?.trim().toLowerCase(),
+        process.env.AGENCY_EMAIL?.trim().toLowerCase(),
+      ].filter(Boolean))
+    ) as string[];
 
-    // Also register agency email as admin if defined (e.g. support@weblipsdigital.in)
-    const agencyEmail = process.env.AGENCY_EMAIL?.trim().toLowerCase();
-    if (agencyEmail && agencyEmail !== adminEmail && agencyEmail.includes('@')) {
+    for (const email of emails) {
+      if (!email.includes('@')) continue;
       await prisma.user.upsert({
-        where: { email: agencyEmail },
+        where: { email },
         update: { passwordHash },
         create: {
-          email: agencyEmail,
-          name: process.env.AGENCY_NAME || 'Agency Admin',
+          email,
+          name: email.split('@')[0],
           passwordHash,
           role: 'ADMIN',
         },
       });
-      logger.info(`Agency admin confirmed: ${agencyEmail}`);
+      logger.info(`Admin ready: ${email}`);
     }
-
-    logger.info(`System admin ready: ${adminEmail}`);
   } catch (err: any) {
-    logger.error(`Error ensuring default admin user: ${err.message}`);
+    logger.error(`Error ensuring admin users: ${err.message}`);
   }
 }
 
