@@ -10,8 +10,8 @@ export const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const { showToast } = useToast();
 
-  const [email, setEmail] = useState('admin@aioutreachpro.local');
-  const [password, setPassword] = useState('Admin@Outreach2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,7 +21,7 @@ export const LoginPage: React.FC = () => {
     try {
       const data = await apiFetch<any>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
 
       login(data.token, data.user);
@@ -59,9 +59,10 @@ export const LoginPage: React.FC = () => {
               <input
                 required
                 type="email"
+                placeholder="admin@aioutreachpro.local"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-slate-800/80 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-slate-800/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
@@ -73,24 +74,18 @@ export const LoginPage: React.FC = () => {
               <input
                 required
                 type="password"
+                placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-slate-800/80 border border-slate-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-slate-800/80 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
-            </div>
-          </div>
-
-          <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-300">
-            <b>Local Seed Admin Credentials:</b>
-            <div className="mt-0.5 font-mono text-[10px] text-slate-400">
-              admin@aioutreachpro.local / Admin@Outreach2026!
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all mt-2"
+            className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all mt-4 disabled:opacity-50"
           >
             {loading ? 'Authenticating...' : 'Sign In to Command Center'}
             <ArrowRight className="w-4 h-4" />
