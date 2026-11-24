@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import { useToast } from '../contexts/ToastContext.js';
+import { apiFetch } from '../services/api.js';
 import { Sparkles, Lock, Mail, ArrowRight } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -18,22 +19,16 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const resp = await fetch('/api/auth/login', {
+      const data = await apiFetch<any>('/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
-      const data = await resp.json();
-      if (!resp.ok) {
-        throw new Error(data.error || 'Login failed');
-      }
 
       login(data.token, data.user);
       showToast(`Welcome back, ${data.user.name}!`, 'success');
       navigate('/');
     } catch (err: any) {
-      showToast(err.message, 'error');
+      showToast(err.message || 'Login failed. Please check backend connection.', 'error');
     } finally {
       setLoading(false);
     }
