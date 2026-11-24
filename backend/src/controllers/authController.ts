@@ -15,9 +15,26 @@ export class AuthController {
         return;
       }
 
-      const user = await prisma.user.findUnique({
+      let user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
       });
+
+      // Auto-bootstrap: If database has NO users at all (unseeded fresh database),
+      // create the first admin user on demand so login never gets blocked!
+      if (!user) {
+        const totalUsers = await prisma.user.count();
+        if (totalUsers === 0) {
+          const passwordHash = await bcrypt.hash(password, 10);
+          user = await prisma.user.create({
+            data: {
+              email: email.toLowerCase(),
+              name: 'System Administrator',
+              passwordHash,
+              role: 'ADMIN',
+            },
+          });
+        }
+      }
 
       if (!user) {
         res.status(401).json({ error: 'Invalid email or password' });
@@ -55,6 +72,49 @@ export class AuthController {
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message || 'Login failed' });
+    }
+  }
+
+  // Setup / verify default admin accounts
+  async setupAdmin(req: Request, res: Response) {
+    try {
+      const adminEmail = (process.env.ADMIN_EMAIL || 'admin@aioutreachpro.local').toLowerCase();
+      const adminPassword = process.env.ADMIN_PASSWORD || 'Admin@Outreach2026!';
+      const passwordHash = await bcrypt.hash(adminPassword, 10);
+
+      const defaultAdmin = await prisma.user.upsert({
+        where: { email: adminEmail },
+        update: { passwordHash },
+        create: {
+          email: adminEmail,
+          name: 'System Administrator',
+          passwordHash,
+          role: 'ADMIN',
+        },
+      });
+
+      const agencyEmail = process.env.AGENCY_EMAIL?.trim().toLowerCase();
+      let agencyAdmin = null;
+      if (agencyEmail && agencyEmail !== adminEmail && agencyEmail.includes('@')) {
+        agencyAdmin = await prisma.user.upsert({
+          where: { email: agencyEmail },
+          update: { passwordHash },
+          create: {
+            email: agencyEmail,
+            name: process.env.AGENCY_NAME || 'Agency Admin',
+            passwordHash,
+            role: 'ADMIN',
+          },
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Admin accounts successfully configured and ready for login.',
+        users: [defaultAdmin.email, agencyAdmin?.email].filter(Boolean),
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || 'Setup failed' });
     }
   }
 

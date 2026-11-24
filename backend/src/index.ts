@@ -27,12 +27,8 @@ app.use(
 // Dynamic CORS configuration - fully supports Vercel, localhost, and custom frontend domains
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
-    if (!origin) return callback(null, true);
-
     // Dynamic permissive origin matching:
-    // Echoes back the requesting origin (e.g., https://ai-outreach-pro.vercel.app or localhost)
-    // so the browser never blocks cross-origin requests.
+    // Echoes back the requesting origin so the browser never blocks cross-origin requests.
     return callback(null, true);
   },
   credentials: true,
@@ -55,15 +51,17 @@ if (process.env.NODE_ENV !== 'test') {
 // Global API rate limiting: 500 requests per minute per IP
 app.use('/api', rateLimiter(60000, 500));
 
-// Health check endpoint
-app.get('/health', (req: any, res: any) => {
+// Health check endpoints
+const healthHandler = (req: any, res: any) => {
   res.json({
     status: 'healthy',
     name: 'AI Outreach Pro API',
     version: '1.0.0',
     timestamp: new Date().toISOString(),
   });
-});
+};
+app.get('/health', healthHandler);
+app.get('/api/health', healthHandler);
 
 // Mount Central API Routes
 app.use('/api', apiRoutes);

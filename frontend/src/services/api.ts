@@ -1,6 +1,9 @@
 // Centralized API client for AI Outreach Pro
 
-const rawBase = import.meta.env.VITE_API_URL || '/api';
+// If hosted on Vercel (*.vercel.app), use same-origin '/api' proxy configured in vercel.json.
+// This completely avoids cross-origin requests, eliminating browser CORS blocks and NetworkError.
+const isVercelHost = typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
+const rawBase = isVercelHost ? '/api' : (import.meta.env.VITE_API_URL || '/api');
 export const BASE_URL = rawBase.endsWith('/') ? rawBase.slice(0, -1) : rawBase;
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
